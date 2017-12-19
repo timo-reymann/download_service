@@ -6,6 +6,7 @@ import(
 	"os"
 )
 
+// Add file to tar writer useing the full path
 func addFile(tw * tar.Writer, path string) error {
 	file, err := os.Open(path)
 	if err != nil {

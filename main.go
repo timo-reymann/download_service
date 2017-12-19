@@ -8,10 +8,13 @@ import(
 	"fmt"
 )
 
+// Application embed server port to listen
 const Port = "8086"
 
+// Download storage for current downloads
 var downloads = make(map[string][]Download)
 
+// Entry point
 func main() {
 	fmt.Println("Listening on port " + Port)
 	http.HandleFunc("/",ServeIndex)
@@ -21,10 +24,12 @@ func main() {
 	http.ListenAndServe(":" + Port, nil)
 }
 
+// Serve form for sending requests useing ajax
 func ServeIndex(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "form.html")
 }
 
+// Download bundle requested
 func DownloadBundle(w http.ResponseWriter, r *http.Request) {
 	identifier := r.FormValue("identifier")
 	f := identifier + ".tar.gz";
@@ -37,6 +42,7 @@ func DownloadBundle(w http.ResponseWriter, r *http.Request) {
 	defer os.Remove(f)
 }
 
+// Request file download
 func Request(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -68,13 +74,17 @@ func Request(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Get current status for download
 func Status(w http.ResponseWriter, r *http.Request) {
 	identifier := r.FormValue("identifier")
+
+	// Some downloads are missing to make tar archive
 	if len(downloads[identifier]) > 0 {
 		w.Write([]byte("DOWNLOADING"))
 		return
 	}
 
+	// Tar file is not created now or download is complete
 	if _,err := os.Stat(identifier + ".tar.gz"); os.IsNotExist(err) {
 		w.Write([]byte("PACKAGING"))
 	} else {
