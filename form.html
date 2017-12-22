@@ -31,6 +31,8 @@
         <label for="state">Status</label>
         <input id="state" readonly/>
     </div>
+    <div class="form-group">
+        <a href="" id="downloadLink">Download</a>
     </div>
 </main>
 <footer>
@@ -50,6 +52,7 @@
 		             </div>`;
 
     $("#loading").hide();
+    $("#downloadLink").hide();
     $("#urls").append(template);
     $("#add").click(() => {
         $("#urls").append(template);
@@ -77,7 +80,8 @@
                     $("#state").val(status);
                     if (status === "COMPLETE") {
                         clearInterval(interval);
-                        window.open(`/download?identifier=${data.identifier}`, '_blank');
+                        $("#downloadLink").attr("href", `/download?identifier=${data.identifier}`);
+                        $("#downloadLink").show();
                         $("#loading").hide();
                     }
                 }).catch((e) => {
