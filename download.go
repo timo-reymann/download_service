@@ -14,6 +14,11 @@ import (
 func DownloadFile(uuid string, download Download) string {
 	r, err := http.Get(download.Url)
 
+	// Error getting file from remote server
+	if err != nil {
+		return ""
+	}
+
 	// Get parts of url
 	tokens := strings.Split(download.Url, "/")
 
