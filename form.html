@@ -2,92 +2,93 @@
 <html>
 
 <head>
-	<title>File Download</title>
-	<link rel="stylesheet" href="https://cdn.timo-reymann.de/public/css/release.css" />
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <title>File Download</title>
+    <link rel="stylesheet" href="https://cdn.timo-reymann.de/public/css/release.css"/>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 </head>
 
 <body>
-	<header>	<span class="title"><i class="fa fa-download"></i> DL | Timo Reymann</span>
-	</header>
-	<main>
-		<div class="grid">
-			<div class="col-1-2 form-group">
-				<button id="add" class="btn btn-block btn-block btn-success"><i class="fa fa-plus"></i> Add</button>
-			</div>
-			<div class="col-1-2 form-group">
-				<button id="send" class="btn btn-block btn-danger"><i class="fa fa-paper-plane-o"></i> Send</button>
-			</div>
-		</div>
-		<div class="grid">
-			<div class="col-1-1">
-				<hr />
-			</div>
-		</div>
-		<div id="urls"></div>
-		<div class="form-group" id="loading">
-			<label>Status</label>
-			<input id="state" readonly />
-		</div>
-		</div>
-	</main>
-	<footer>
-		Erstellt von <a href="https://timo-reymann.de">Timo Reymann</a> mit <span class="fa fa-fw fa-heart text-danger" aria-hidden="true"></span> und <span class="fa fa-fw fa-coffee" aria-hidden="true"></span>
-	</footer>
+<header><span class="title"><i class="fa fa-download"></i> DL | Timo Reymann</span>
+</header>
+<main>
+    <div class="grid">
+        <div class="col-1-2 form-group">
+            <button id="add" class="btn btn-block btn-block btn-success"><i class="fa fa-plus"></i> Add</button>
+        </div>
+        <div class="col-1-2 form-group">
+            <button id="send" class="btn btn-block btn-danger"><i class="fa fa-paper-plane-o"></i> Send</button>
+        </div>
+    </div>
+    <div class="grid">
+        <div class="col-1-1">
+            <hr/>
+        </div>
+    </div>
+    <div id="urls"></div>
+    <div class="form-group" id="loading">
+        <label for="state">Status</label>
+        <input id="state" readonly/>
+    </div>
+    </div>
+</main>
+<footer>
+    Erstellt von <a href="https://timo-reymann.de">Timo Reymann</a> mit <span class="fa fa-fw fa-heart text-danger"
+                                                                              aria-hidden="true"></span> und <span
+        class="fa fa-fw fa-coffee" aria-hidden="true"></span>
+</footer>
 
-	<script>
-		let template = `<div class="grid">
-									<div class="col-11-12">
-		                             <input type="url" class="url" placeholder="Volle URL zum herunterladen">
-									</div>
-									<div class="col form-group">
-									 <button class="del"><i class="fa fa-trash"></i> Löschen</button>
-									 </div>
-		                         </div>`;
-		         
-		         $("#loading").hide();
-				 $("#urls").append(template);
-		         $("#add").click(() => {
-		             $("#urls").append(template);
-		         });
-				 
-				 $(document).on("click",".del",function () {
-					$(this).parent().parent().remove();
-				 });
-		         
-		         $("#send").click(() => {
-		             let downloads = [];
-		             $(".url").each(function () {
-		                 downloads.push({"url": $(this).val()});
-		             });
-		             $.ajax({
-		                 dataType: "json",
-		                 contentType: "application/json",
-		                 type: "POST",
-		                 url: "/request",
-		                 data: JSON.stringify({"downloads": downloads}),
-		             }).done((data) => {
-		                 $("#loading").show();
-		                 var interval = setInterval(() => {
-		                     $.get(`/check?identifier=${data.identifier}`).done((status) => {
-								$("#state").val(status);
-		                         if (status === "COMPLETE") {
-		                             clearInterval(interval);
-		                             window.open(`/download?identifier=${data.identifier}`, '_blank').focus();
-		                             $("#loading").hide();
-		                         }
-		                     })
-							 .catch((e) => {
-								alert("Fehler beim Abrufen des Status: " + JSON.stringify(e));
-							 });
-		                 }, 500);
-		             }).catch((e) => {
-						alert("Fehler bei der Anfrage: " + JSON.stringify(e));
-					 });
-		         });
-	</script>
+<script>
+    let template = `<div class="grid">
+					    <div class="col-11-12">
+		                        <input type="url" class="url" placeholder="Volle URL zum herunterladen">
+						</div>
+						<div class="col form-group">
+						    <button class="del"><i class="fa fa-trash"></i> Löschen</button>
+						</div>
+		             </div>`;
+
+    $("#loading").hide();
+    $("#urls").append(template);
+    $("#add").click(() => {
+        $("#urls").append(template);
+    });
+
+    $(document).on("click", ".del", function () {
+        $(this).parent().parent().remove();
+    });
+
+    $("#send").click(() => {
+        let downloads = [];
+        $(".url").each(function () {
+            downloads.push({"url": $(this).val()});
+        });
+        $.ajax({
+            dataType: "json",
+            contentType: "application/json",
+            type: "POST",
+            url: "/request",
+            data: JSON.stringify({"downloads": downloads}),
+        }).done((data) => {
+            $("#loading").show();
+            let interval = setInterval(() => {
+                $.get(`/check?identifier=${data.identifier}`).done((status) => {
+                    $("#state").val(status);
+                    if (status === "COMPLETE") {
+                        clearInterval(interval);
+                        window.open(`/download?identifier=${data.identifier}`, '_blank').focus();
+                        $("#loading").hide();
+                    }
+                }).catch((e) => {
+                    alert("Fehler beim Abrufen des Status: " + JSON.stringify(e));
+                });
+            }, 500);
+        }).catch((e) => {
+            alert("Fehler bei der Anfrage: " + JSON.stringify(e));
+        });
+    });
+</script>
 </body>
 
 </html>
