@@ -1,6 +1,6 @@
 package main
 
-import(
+import (
 	"net/http"
 	"encoding/json"
 	"io/ioutil"
@@ -17,11 +17,11 @@ var downloads = make(map[string][]Download)
 // Entry point
 func main() {
 	fmt.Println("Listening on port " + Port)
-	http.HandleFunc("/",ServeIndex)
+	http.HandleFunc("/", ServeIndex)
 	http.HandleFunc("/request", Request)
 	http.HandleFunc("/check", Status)
 	http.HandleFunc("/download", DownloadBundle)
-	http.ListenAndServe(":" + Port, nil)
+	http.ListenAndServe(":"+Port, nil)
 }
 
 // Serve form for sending requests useing ajax
@@ -33,10 +33,9 @@ func ServeIndex(w http.ResponseWriter, r *http.Request) {
 func DownloadBundle(w http.ResponseWriter, r *http.Request) {
 	identifier := r.FormValue("identifier")
 	f := identifier + ".tar.gz";
+	Log(identifier, "Download file")
 
-	Log(identifier,"Download file")
-
-	w.Header().Set("Content-Disposition", "attachement;filename=" + identifier + ".tar.gz")
+	w.Header().Set("Content-Disposition", "attachement;filename="+identifier+".tar.gz")
 	http.ServeFile(w, r, f)
 
 	defer os.Remove(f)
@@ -45,14 +44,17 @@ func DownloadBundle(w http.ResponseWriter, r *http.Request) {
 // Request file download
 func Request(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
+
 	if err != nil {
-		panic(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	var req RequestDownloads
 	err = json.Unmarshal(body, &req)
 	if err != nil {
-		panic(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	fmt.Println(req)
@@ -66,7 +68,7 @@ func Request(w http.ResponseWriter, r *http.Request) {
 	Log(uuid, "Start downloads")
 
 	if len(downloads[uuid]) > 0 {
-		os.MkdirAll(uuid,os.ModePerm)
+		os.MkdirAll(uuid, os.ModePerm)
 	}
 
 	for _, dl := range downloads[uuid] {
@@ -85,7 +87,7 @@ func Status(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Tar file is not created now or download is complete
-	if _,err := os.Stat(identifier + ".tar.gz"); os.IsNotExist(err) {
+	if _, err := os.Stat(identifier + ".tar.gz"); os.IsNotExist(err) {
 		w.Write([]byte("PACKAGING"))
 	} else {
 		Log(identifier, "Notified download is complete")

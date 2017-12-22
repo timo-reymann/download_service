@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"encoding/json"
 	"io/ioutil"
+	"math/rand"
 )
 
 // Generate uuid useing linux program
@@ -22,8 +23,9 @@ func GenerateUUID() string {
 
 	err = json.Unmarshal([]byte(string(responseData)), &uuidResponse)
 
+	// fallback to local random string instead of using api
 	if err != nil {
-		panic(err)
+		return RandStringRunes(10)
 	}
 
 	return uuidResponse.Data.Uuid
@@ -34,6 +36,19 @@ func Log(uuid string, msg string) {
 	fmt.Println("[" + uuid + "] " + msg);
 }
 
+// Build file name for identifier
 func BuildFileName(identifier string) string {
 	return "./" + identifier + ".tar.gz"
+}
+
+// Letters for random string
+var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+// Create random string
+func RandStringRunes(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
 }
