@@ -77,7 +77,7 @@
                     $("#state").val(status);
                     if (status === "COMPLETE") {
                         clearInterval(interval);
-                        window.open(`/download?identifier=${data.identifier}`, '_blank').focus();
+                        window.open(`/download?identifier=${data.identifier}`, '_blank');
                         $("#loading").hide();
                     }
                 }).catch((e) => {
