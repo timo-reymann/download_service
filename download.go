@@ -11,11 +11,20 @@ import (
 )
 
 // Download file and return file name as string
-func DownloadFile(uuid string, download Download) string {
+func DownloadFile(uuid string, download Download, w http.ResponseWriter) string {
 	r, err := http.Get(download.Url)
 
 	// Error getting file from remote server
 	if err != nil {
+		Log(uuid, "Aborting download, error download file "+download.Url)
+		removeDownloadByUrl(uuid)
+
+		// War nur ein Link
+		if len(downloads[uuid]) == 0 {
+			delete(downloads, uuid)
+			Log(uuid, "Build empty tar file and clear uuid from list");
+			buildTar(uuid)
+		}
 		return ""
 	}
 
@@ -42,13 +51,7 @@ func DownloadFile(uuid string, download Download) string {
 		return ""
 	}
 
-	// Remove finished download from download map indexed by uuid
-	for index, value := range downloads[uuid] {
-		if value.Url == value.Url {
-			downloads[uuid] = remove(downloads[uuid], index)
-			break
-		}
-	}
+	removeDownloadByUrl(uuid)
 
 	if len(downloads[uuid]) == 0 {
 		delete(downloads, uuid)
@@ -57,6 +60,17 @@ func DownloadFile(uuid string, download Download) string {
 	}
 
 	return filename
+}
+
+// Remove download from download map indexed by uuid
+func removeDownloadByUrl(uuid string) {
+
+	for index, value := range downloads[uuid] {
+		if value.Url == value.Url {
+			downloads[uuid] = remove(downloads[uuid], index)
+			break
+		}
+	}
 }
 
 // Remove download from downloads list by index

@@ -46,7 +46,7 @@ func Request(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -57,13 +57,9 @@ func Request(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(req)
-
 	uuid := GenerateUUID()
 	json, err := json.Marshal(Response{uuid})
 	downloads[uuid] = req.Downloads
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(json)
 
 	Log(uuid, "Start downloads")
 
@@ -72,8 +68,11 @@ func Request(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, dl := range downloads[uuid] {
-		go DownloadFile(uuid, dl)
+		go DownloadFile(uuid, dl, w)
 	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(json)
 }
 
 // Get current status for download
