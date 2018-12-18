@@ -8,6 +8,8 @@ node {
         ])
     ])
 
+    currentBuild.description = params.tag
+
     def imageName = "timoreymann/download_service"
     def credentials = 'timoreymann-docker'
     def registry = 'https://registry.hub.docker.com'
