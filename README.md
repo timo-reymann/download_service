@@ -1,5 +1,7 @@
 download_service
 ===
+[![Build Status](https://jenkins.timo-reymann.de/buildStatus/icon?job=TR-GitHub%2FDownloadService%2Fmaster)](https://jenkins.timo-reymann.de/job/TR-GitHub/job/DownloadService/job/master/)
+
 # Beschreibung
 Dieser Service dient dem Herunterladen und Bundeln von Remote-Dateien mittels eines kleinen Webservers und Go.
 
