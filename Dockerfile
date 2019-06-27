@@ -1,8 +1,11 @@
-FROM golang:latest
+FROM golang:alpine3.10 as builder
+ADD src/ /build/
+WORKDIR /build
+RUN go build -o server .
+
+FROM alpine:3.10
 EXPOSE 8086
-RUN mkdir /app
-ADD . /app/
 WORKDIR /app
-COPY ./src/form.html ./form.html
-RUN go build -o server ./src
-CMD ["/app/server"]
+COPY --from=builder /build/server server
+COPY --from=builder /build/form.html form.html
+CMD ["./server"]
