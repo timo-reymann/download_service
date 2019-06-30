@@ -1,5 +1,5 @@
 #!groovy
 
 node {
-  runDefaultDockerPipeline currentBuild: currentBuild, imageName: timoreymann/download_service
+  runDefaultDockerPipeline currentBuild: currentBuild, imageName: "timoreymann/download_service"
 }
