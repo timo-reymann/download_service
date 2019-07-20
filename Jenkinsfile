@@ -1,5 +1,10 @@
 #!groovy
-
 node {
-  runDefaultDockerPipeline currentBuild: currentBuild, imageName: "timoreymann/download_service"
+    properties([
+        parameters([
+            gitTagVersionInput()
+        ])
+    ])
+
+    runDefaultDockerPipeline currentBuild: currentBuild, imageName: "timoreymann/download_service"
 }
